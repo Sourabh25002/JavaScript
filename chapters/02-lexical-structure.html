@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lexical Structure</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+
+  <a class="back" href="../index.html">← All notes</a>
+
+  <header>
+    <span class="eyebrow">Chapter 02</span>
+    <h1>Lexical Structure</h1>
+  </header>
+
+  <p><strong>Lexical structure</strong> = the basic writing rules of a language: how names are written, how comments work, and how one statement ends and the next begins.</p>
+
+
+  <h2><span class="num">2.1</span> The Text of a JavaScript Program</h2>
+
+  <ul>
+    <li><strong>Case-sensitive</strong> — <code>name</code>, <code>Name</code> and <code>NAME</code> are three different variables. Keywords must be lowercase (<code>while</code>, not <code>While</code>).</li>
+    <li><strong>Spaces and line breaks</strong> between pieces of code are ignored, so you can format code however you like. (One exception — see 2.6.)</li>
+  </ul>
+
+
+  <h2><span class="num">2.2</span> Comments</h2>
+
+  <ul>
+    <li><code>//</code> — comments out the rest of the line.</li>
+    <li><code>/* ... */</code> — can cover many lines, but can't be placed inside another <code>/* */</code>.</li>
+  </ul>
+
+
+  <h2><span class="num">2.3</span> Literals</h2>
+
+  <ul>
+    <li>A <strong>literal</strong> is a value written directly in the code — <code>12</code>, <code>1.2</code>, <code>"hello"</code>, <code>true</code>, <code>null</code>.</li>
+  </ul>
+
+
+  <h2><span class="num">2.4</span> Identifiers and Reserved Words</h2>
+
+  <ul>
+    <li>An <strong>identifier</strong> is just a name — for a variable, function, class, etc.</li>
+    <li>It must <strong>start with a letter, <code>_</code> or <code>$</code></strong>. Digits are allowed after the first character, but never first — that's how JavaScript tells names apart from numbers.</li>
+    <li><strong>Reserved words</strong> (<code>if</code>, <code>for</code>, <code>class</code>, <code>let</code>, <code>return</code>…) can't be used as variable or function names. They're fine as object property names.</li>
+    <li>Also avoid naming things <code>arguments</code> or <code>eval</code>.</li>
+  </ul>
+
+
+  <h2><span class="num">2.5</span> Unicode</h2>
+
+  <ul>
+    <li>JavaScript code is written in <strong>Unicode</strong>, so strings and comments can contain any language or emoji.</li>
+    <li>Names can use non-English letters too (but not emoji) — in practice, stick to English letters.</li>
+  </ul>
+
+
+  <h2><span class="num">2.6</span> Optional Semicolons</h2>
+
+  <div class="note">
+    <p>JavaScript can add missing semicolons for you — this is called <strong>ASI (Automatic Semicolon Insertion)</strong>. But it only adds one at a line break when the next line <em>can't</em> continue the current statement. So sometimes it joins lines you meant to keep separate, or splits lines you meant to keep together.</p>
+  </div>
+
+  <h3>Trap 1: line break after <code>return</code></h3>
+  <p>JavaScript always ends the statement right after <code>return</code> if a line break follows — so the function returns <code>undefined</code>.</p>
+
+  <pre><code>function getUser() {
+  return
+  { name: "Sourabh" };
+}
+getUser();</code></pre>
+  <div class="output">undefined</div>
+
+  <p>Fix: keep the value on the same line as <code>return</code>. Same rule for <code>break</code>, <code>continue</code> and <code>throw</code>.</p>
+
+  <h3>Trap 2: line starting with <code>(</code> or <code>[</code></h3>
+  <p>JavaScript treats it as a continuation of the previous line, so two lines become one statement. Fix: end the previous line with a semicolon.</p>
+
+  <h3>Other rules</h3>
+  <ul>
+    <li><code>++</code> and <code>--</code> must be on the same line as the variable they apply to.</li>
+    <li>In arrow functions, <code>=&gt;</code> must be on the same line as the parameters.</li>
+  </ul>
+
+  <div class="note">
+    <p>Simplest habit: <strong>always write semicolons</strong> (or let a formatter like Prettier add them).</p>
+  </div>
+
+
+</main>
+<script src="../sidebar.js"></script>
+</body>
+</html>
