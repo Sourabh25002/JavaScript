@@ -1,0 +1,249 @@
+/* JavaScript Notes — calm dark theme */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root {
+  --bg: #15181e;          /* deep blue-grey */
+  --surface: #1c2028;     /* cards, notes, code */
+  --surface-2: #232833;
+  --border: #2a303b;
+
+  --text: #c3c8d1;        /* soft, not pure white */
+  --heading: #ebe8e1;     /* warm off-white */
+  --muted: #7d8592;
+
+  --accent: #86bba8;      /* sage green — calm, good for focus */
+  --accent-soft: rgba(134, 187, 168, 0.12);
+  --warm: #e2bf85;        /* soft amber, used in code */
+}
+
+* { box-sizing: border-box; }
+
+html { background: var(--bg); }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--text);
+  font-family: "Inter", -apple-system, "Segoe UI", Roboto, Ubuntu, sans-serif;
+  font-size: 17.5px;
+  line-height: 1.8;
+  -webkit-font-smoothing: antialiased;
+  /* faint glow at the top so the page isn't flat */
+  background:
+    radial-gradient(ellipse 900px 420px at 50% -120px, rgba(134, 187, 168, 0.10), transparent 70%),
+    var(--bg);
+}
+
+::selection { background: rgba(134, 187, 168, 0.30); color: var(--heading); }
+
+main {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 72px 24px 140px;
+}
+
+a { color: var(--accent); text-decoration: none; transition: color 0.15s; }
+a:hover { color: var(--heading); }
+
+/* ---------- Page header ---------- */
+
+.eyebrow {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 14px;
+}
+
+h1 {
+  font-size: 2.4rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  color: var(--heading);
+  margin: 0;
+}
+
+.subtitle {
+  color: var(--muted);
+  font-size: 1rem;
+  margin: 12px 0 0;
+}
+
+header {
+  padding-bottom: 36px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* ---------- Section headings ---------- */
+
+h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--heading);
+  margin: 72px 0 18px;
+}
+
+/* <h2><span class="num">1.1</span> Title</h2> */
+h2 .num {
+  flex-shrink: 0;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 2px 9px;
+  border-radius: 6px;
+  position: relative;
+  top: -2px;
+}
+
+h3 {
+  font-size: 1.08rem;
+  font-weight: 600;
+  color: var(--heading);
+  margin: 40px 0 8px;
+}
+
+p { margin: 0 0 1.1em; }
+strong { color: var(--heading); font-weight: 600; }
+
+ul, ol { padding-left: 22px; }
+li { margin: 6px 0; }
+li::marker { color: var(--accent); }
+
+/* ---------- Code ---------- */
+
+code {
+  font-family: "JetBrains Mono", Consolas, monospace;
+  font-size: 0.86em;
+  color: var(--warm);
+  background: var(--surface-2);
+  padding: 2px 7px;
+  border-radius: 5px;
+}
+
+pre {
+  position: relative;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 36px 22px 18px;
+  margin: 24px 0;
+  overflow-x: auto;
+  line-height: 1.65;
+}
+
+/* small "JS" label in the corner */
+pre::before {
+  content: "JS";
+  position: absolute;
+  top: 10px;
+  left: 22px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+pre code {
+  background: none;
+  padding: 0;
+  font-size: 0.86rem;
+  color: var(--heading);
+}
+
+/* code block followed by output: join them into one box */
+pre:has(+ .output) {
+  margin-bottom: 0;
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
+}
+
+/* What the code printed — put right after a <pre> */
+.output {
+  margin: 0 0 24px;
+  padding: 12px 22px;
+  background: #181b22;
+  border: 1px solid var(--border);
+  border-top: 1px dashed #343b47;
+  border-radius: 0 0 10px 10px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+.output::before { content: "› "; color: var(--accent); }
+
+/* ---------- Note ---------- */
+
+.note {
+  background: linear-gradient(90deg, var(--accent-soft), transparent 85%);
+  border-left: 3px solid var(--accent);
+  border-radius: 0 10px 10px 0;
+  padding: 14px 22px;
+  margin: 28px 0;
+}
+.note p { margin: 0.25em 0; color: var(--heading); }
+
+/* ---------- Index page ---------- */
+
+.contents {
+  list-style: none;
+  padding: 0;
+  margin: 40px 0 0;
+  display: grid;
+  gap: 12px;
+}
+
+.contents a {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  color: var(--heading);
+  font-weight: 500;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.contents a:hover {
+  border-color: rgba(134, 187, 168, 0.45);
+  background: var(--surface-2);
+  color: var(--heading);
+}
+
+.contents .ch {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 1.3rem;
+  color: var(--accent);
+  min-width: 34px;
+}
+
+.contents small {
+  display: block;
+  color: var(--muted);
+  font-weight: 400;
+  font-size: 0.85rem;
+  margin-top: 2px;
+}
+
+/* ---------- Back link ---------- */
+
+.back {
+  display: inline-block;
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 40px;
+}
+.back:hover { color: var(--accent); }
