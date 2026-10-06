@@ -16,58 +16,89 @@
     <h1>Lexical Structure</h1>
   </header>
 
-  <p><strong>Lexical structure</strong> = the basic writing rules of a language: how names are written, how comments work, and how one statement ends and the next begins.</p>
+  <p><strong>Lexical structure</strong> = the most basic writing rules of a language — how names are written, and how JavaScript knows where one statement ends and the next one begins.</p>
+  <p>Most of this chapter is common sense. The part that really matters is <strong>2.6 Optional Semicolons</strong> — it's a well-known interview trap.</p>
 
 
   <h2><span class="num">2.1</span> The Text of a JavaScript Program</h2>
 
   <ul>
-    <li><strong>Case-sensitive</strong> — <code>name</code>, <code>Name</code> and <code>NAME</code> are three different variables. Keywords must be lowercase (<code>while</code>, not <code>While</code>).</li>
-    <li><strong>Spaces and line breaks</strong> between pieces of code are ignored, so you can format code however you like. (One exception — see 2.6.)</li>
+    <li><strong>Case-sensitive</strong> — capital and small letters are treated as different. So <code>count</code> and <code>Count</code> are two separate variables, and you must write <code>while</code>, never <code>While</code>.</li>
+    <li><strong>Spaces and line breaks are ignored</strong> — you can add as many as you like to make code readable; JavaScript doesn't care. (There's one exception where a line break <em>does</em> matter — see 2.6.)</li>
   </ul>
 
 
   <h2><span class="num">2.2</span> Comments</h2>
 
-  <ul>
-    <li><code>//</code> — comments out the rest of the line.</li>
-    <li><code>/* ... */</code> — can cover many lines, but can't be placed inside another <code>/* */</code>.</li>
-  </ul>
+  <p>Nothing new — <code>//</code> for one line, <code>/* ... */</code> for many lines.</p>
 
 
   <h2><span class="num">2.3</span> Literals</h2>
 
   <ul>
-    <li>A <strong>literal</strong> is a value written directly in the code — <code>12</code>, <code>1.2</code>, <code>"hello"</code>, <code>true</code>, <code>null</code>.</li>
+    <li>A <strong>literal</strong> is a value you type directly into the code, like <code>42</code>, <code>"hello"</code> or <code>true</code>. The word comes up often, so it's worth knowing.</li>
   </ul>
 
 
   <h2><span class="num">2.4</span> Identifiers and Reserved Words</h2>
 
   <ul>
-    <li>An <strong>identifier</strong> is just a name — for a variable, function, class, etc.</li>
-    <li>It must <strong>start with a letter, <code>_</code> or <code>$</code></strong>. Digits are allowed after the first character, but never first — that's how JavaScript tells names apart from numbers.</li>
-    <li><strong>Reserved words</strong> (<code>if</code>, <code>for</code>, <code>class</code>, <code>let</code>, <code>return</code>…) can't be used as variable or function names. They're fine as object property names.</li>
-    <li>Also avoid naming things <code>arguments</code> or <code>eval</code>.</li>
+    <li>An <strong>identifier</strong> is simply a <strong>name</strong> — the name you give to a variable, function, class or object property. In <code>let age = 25</code>, <code>age</code> is the identifier.</li>
+    <li><strong>Naming rule:</strong> a name must start with a letter, <code>_</code> or <code>$</code>. Digits are allowed after that, but not first — <code>user1</code> works, <code>1user</code> doesn't.</li>
+    <li><strong>Why no digit first?</strong> So JavaScript can tell straight away whether it's looking at a name or a number.</li>
+    <li><strong>Reserved words</strong> are words JavaScript already uses for itself — <code>if</code>, <code>for</code>, <code>class</code>, <code>return</code> and so on. You can't use them as variable or function names. (They <em>are</em> allowed as object property names, like <code>obj.class</code>.)</li>
   </ul>
 
 
   <h2><span class="num">2.5</span> Unicode</h2>
 
   <ul>
-    <li>JavaScript code is written in <strong>Unicode</strong>, so strings and comments can contain any language or emoji.</li>
-    <li>Names can use non-English letters too (but not emoji) — in practice, stick to English letters.</li>
+    <li><strong>Unicode</strong> is a big list that gives every character in the world its own number — English letters, Hindi, Chinese, even emoji. Computers only store numbers, so this list is how they know which number means which character.</li>
+    <li>JavaScript code is written in Unicode, so <strong>strings can hold any language or emoji</strong> — <code>"नमस्ते 😀"</code> works fine.</li>
   </ul>
 
 
   <h2><span class="num">2.6</span> Optional Semicolons</h2>
 
+  <ul>
+    <li>A <strong>statement</strong> is one complete instruction, like <code>let x = 5</code>. A semicolon <code>;</code> marks where a statement ends.</li>
+    <li>In JavaScript you can usually <strong>leave the semicolon out</strong> if each statement is on its own line — JavaScript adds it for you.</li>
+  </ul>
+
   <div class="note">
-    <p>JavaScript can add missing semicolons for you — this is called <strong>ASI (Automatic Semicolon Insertion)</strong>. But it only adds one at a line break when the next line <em>can't</em> continue the current statement. So sometimes it joins lines you meant to keep separate, or splits lines you meant to keep together.</p>
+    <p>This feature is called <strong>ASI (Automatic Semicolon Insertion)</strong>. The important part is <em>how</em> it decides: at each line break, JavaScript checks whether the next line could carry on the current statement. If it can, JavaScript <strong>joins the lines</strong>. It adds a semicolon only when joining would make no sense.</p>
   </div>
 
-  <h3>Trap 1: line break after <code>return</code></h3>
-  <p>JavaScript always ends the statement right after <code>return</code> if a line break follows — so the function returns <code>undefined</code>.</p>
+  <h3>How ASI reads code</h3>
+
+  <pre><code>let n
+n
+=
+5
+console.log(n)</code></pre>
+
+  <ul>
+    <li><code>let n</code> then <code>n</code> → <code>let n n</code> makes no sense, so a semicolon is added.</li>
+    <li><code>n</code> then <code>=</code> → <code>n =</code> can carry on, so the lines are joined. (<code>n</code> on its own would be fine too, but JavaScript always prefers to keep going.)</li>
+    <li><code>n =</code> then <code>5</code> → <code>n = 5</code>, joined.</li>
+    <li><code>5</code> then <code>console</code> → makes no sense, so a semicolon is added.</li>
+  </ul>
+
+  <p>So JavaScript actually runs:</p>
+  <pre><code>let n; n = 5; console.log(n);</code></pre>
+
+  <p>Lesson: <strong>a line break is not the same as a semicolon.</strong> That's where the two traps below come from.</p>
+
+  <h3>Trap 1: a line that starts with <code>(</code> or <code>[</code></h3>
+  <p>JavaScript thinks this line is a continuation of the line above, and joins them:</p>
+
+  <pre><code>let total = price + getTax
+(a + b).toString()</code></pre>
+
+  <p>This is read as <code>getTax(a + b)</code> — the function gets called by accident. Fix: end the first line with a semicolon.</p>
+
+  <h3>Trap 2: a line break right after <code>return</code></h3>
+  <p>This one is the opposite — JavaScript <em>always</em> ends the statement right after <code>return</code> if a line break follows:</p>
 
   <pre><code>function getUser() {
   return
@@ -76,20 +107,16 @@
 getUser();</code></pre>
   <div class="output">undefined</div>
 
-  <p>Fix: keep the value on the same line as <code>return</code>. Same rule for <code>break</code>, <code>continue</code> and <code>throw</code>.</p>
-
-  <h3>Trap 2: line starting with <code>(</code> or <code>[</code></h3>
-  <p>JavaScript treats it as a continuation of the previous line, so two lines become one statement. Fix: end the previous line with a semicolon.</p>
-
-  <h3>Other rules</h3>
-  <ul>
-    <li><code>++</code> and <code>--</code> must be on the same line as the variable they apply to.</li>
-    <li>In arrow functions, <code>=&gt;</code> must be on the same line as the parameters.</li>
-  </ul>
+  <p>JavaScript reads it as <code>return;</code> — so the function returns nothing. Fix: start the value on the same line as <code>return</code>. (Same rule for <code>break</code>, <code>continue</code> and <code>throw</code>.)</p>
 
   <div class="note">
-    <p>Simplest habit: <strong>always write semicolons</strong> (or let a formatter like Prettier add them).</p>
+    <p><strong>Interview:</strong> "Are semicolons optional in JavaScript?" — Mostly yes, because of ASI. But ASI only adds a semicolon when the next line can't continue the statement. So a line starting with <code>(</code> or <code>[</code> gets joined to the line above, and a line break after <code>return</code> makes the function return <code>undefined</code>. The safe habit is to always write semicolons, or let a formatter like Prettier add them.</p>
   </div>
+
+
+  <h2><span class="num">2.7</span> Summary</h2>
+
+  <p>Only 2.6 is worth revising before an interview. The next chapter is where the real language starts — types and values.</p>
 
 
 </main>
