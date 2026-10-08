@@ -3,6 +3,7 @@
 const chapters = [
   { file: "01-introduction.html",     title: "Introduction to JavaScript", about: "What JavaScript is, where it runs, a quick tour" },
   { file: "02-lexical-structure.html", title: "Lexical Structure",          about: "Naming rules, comments, and the semicolon trap" },
+  { file: "03-types-values-variables.html", title: "Types, Values, and Variables", about: "Primitive types, objects, type conversion, let/const/var" },
 ];
 
 // "01", "02", ... from the chapter's position in the list

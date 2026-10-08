@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Types, Values, and Variables</title>
+  <link rel="stylesheet" href="../style.css">
+</head>
+<body>
+<main>
+
+  <a class="back" href="../index.html">← All notes</a>
+
+  <header>
+    <span class="eyebrow">Chapter 03</span>
+    <h1>Types, Values, and Variables</h1>
+  </header>
+
+  <ul>
+    <li>A <strong>value</strong> is any piece of data your program works with, like <code>42</code>, <code>"hello"</code> or <code>true</code>.</li>
+    <li>A <strong>type</strong> is the <em>kind</em> of value: a number, a piece of text (a <strong>string</strong>), true/false (a <strong>boolean</strong>), and so on.</li>
+    <li>The type decides what you can do with a value. You do maths with numbers; you change text to uppercase or split it into words.</li>
+  </ul>
+
+
+  <h2><span class="num">3.1</span> Overview and Definitions</h2>
+
+  <p>Every JavaScript type belongs to one of two groups:</p>
+
+  <h3>1. Primitive types: simple, single values</h3>
+  <ul>
+    <li><strong>number</strong>: <code>42</code>, <code>3.14</code></li>
+    <li><strong>string</strong>: text, like <code>"hello"</code></li>
+    <li><strong>boolean</strong>: <code>true</code> or <code>false</code></li>
+    <li><strong>null</strong>: means "empty on purpose"</li>
+    <li><strong>undefined</strong>: means "no value has been given yet"</li>
+    <li><strong>symbol</strong>: a unique ID value (rarely used)</li>
+    <li><strong>bigint</strong>: whole numbers too big for a normal number</li>
+  </ul>
+
+  <h3>2. Object types: everything else</h3>
+  <ul>
+    <li>Plain objects <code>{ name: "Sourabh" }</code>, arrays <code>[1, 2, 3]</code>, functions, dates and so on.</li>
+    <li>An object isn't a single value; it's a <strong>collection of values grouped together</strong>.</li>
+    <li>Each item inside an object is a <strong>property</strong>, which is a <strong>name + value</strong> pair. The value can be a primitive or another object. In <code>{ name: "Sourabh", age: 25 }</code>, <code>name</code> and <code>age</code> are property names.</li>
+    <li><strong>Plain object</strong>: you get values out by <strong>name</strong> (<code>user.name</code>), not by position.</li>
+    <li><strong>Array</strong>: a special kind of object that keeps values <strong>in order</strong>, and you get them out by <strong>number</strong> (<code>list[0]</code>, which starts counting from 0). It has its own <code>[ ]</code> syntax and some extra built-in behaviour.</li>
+    <li><strong>Functions and classes are objects too</strong>, just special ones. (Details in Chapters 8 and 9.)</li>
+  </ul>
+
+  <p>The big practical difference between the two groups: <strong>primitives can't be changed, objects can</strong>. They also behave differently when you compare or copy them. All of that is in 3.8.</p>
+
+  <div class="note">
+    <p><strong>Interview:</strong> "How many primitive types does JavaScript have?" Seven: number, string, boolean, null, undefined, symbol and bigint. Anything else is an object.</p>
+  </div>
+
+  <h3>Garbage collection: memory is cleaned up for you</h3>
+  <ul>
+    <li>Every value your program creates takes up some memory.</li>
+    <li><strong>Garbage collection</strong> means JavaScript frees that memory <strong>automatically</strong> once a value can't be reached anymore, meaning no variable or object points to it.</li>
+    <li>So you never free memory yourself, unlike in languages such as C.</li>
+  </ul>
+
+  <h3>Methods work on every value except null and undefined</h3>
+  <ul>
+    <li>A <strong>method</strong> is a function that belongs to a value. You call it with a dot: <code>value.method()</code>.</li>
+    <li>Strictly speaking, only objects have methods. But strings, numbers and booleans <strong>act as if they have methods too</strong>.</li>
+    <li>How? JavaScript quietly wraps the primitive in a <strong>temporary object</strong> (a <code>String</code>, <code>Number</code> or <code>Boolean</code>), runs the method on that object, then throws the wrapper away. This is called <strong>autoboxing</strong>.</li>
+  </ul>
+
+  <pre><code>"hello".toUpperCase()   // "HELLO"   (string)
+(3.14159).toFixed(2)    // "3.14"    (number)
+true.toString()         // "true"    (boolean)
+[1, 2, 3].join("-")     // "1-2-3"   (array, already an object)</code></pre>
+
+  <ul>
+    <li><code>null</code> and <code>undefined</code> are the <strong>only values with no wrapper and no methods</strong>. They mean "no value", so there's nothing to call a method on.</li>
+    <li>Putting a dot after them crashes with a <strong>TypeError</strong>. This is one of the most common errors in real code:</li>
+  </ul>
+
+  <pre><code>let user;               // undefined: no value given yet
+user.name;</code></pre>
+  <div class="output">TypeError: Cannot read properties of undefined (reading 'name')</div>
+
+  <p>It usually means a variable you expected to hold an object is still empty. The safe way is optional chaining, <code>user?.name</code>, which gives <code>undefined</code> instead of crashing (more in Chapter 4).</p>
+
+  <div class="note">
+    <p><strong>Interview:</strong> "If strings are primitives, how does <code>"abc".toUpperCase()</code> work?" Autoboxing: JavaScript wraps the string in a temporary <code>String</code> object just for that call.</p>
+  </div>
+
+
+  <h2><span class="num">3.2</span> Numbers</h2>
+
+  <ul>
+    <li>JavaScript has <strong>only one number type</strong> for both whole numbers and decimals. There's no separate "int" and "float" like in Java or C.</li>
+    <li>Whole numbers are exact only up to <strong>2<sup>53</sup> − 1</strong> (about 9 quadrillion), saved as <code>Number.MAX_SAFE_INTEGER</code>. Past that, the last digits can come out wrong: <code>2 ** 53 + 1 === 2 ** 53</code> is <code>true</code>. For bigger numbers, use BigInt (below).</li>
+    <li>You can write <code>1_000_000</code> instead of <code>1000000</code>. The underscores are only there to make it easier to read.</li>
+    <li>Useful <code>Math</code> functions: <code>round</code>, <code>floor</code> (rounds down), <code>ceil</code> (rounds up), <code>trunc</code> (just cuts off the decimals), <code>max</code>, <code>min</code>, <code>abs</code> and <code>random</code> (a number from 0 up to, but not including, 1).</li>
+    <li><code>floor</code> and <code>trunc</code> only differ for negative numbers: <code>Math.floor(-3.5)</code> is <code>-4</code>, but <code>Math.trunc(-3.5)</code> is <code>-3</code>.</li>
+  </ul>
+
+  <h3>Maths never throws an error: Infinity and NaN</h3>
+  <ul>
+    <li>Dividing by zero is <strong>not an error</strong>. <code>1/0</code> gives <code>Infinity</code> and <code>-1/0</code> gives <code>-Infinity</code>.</li>
+    <li>Maths that makes no sense gives <strong><code>NaN</code></strong> ("Not a Number"). For example: <code>0/0</code>, <code>"abc" * 2</code> or <code>Math.sqrt(-1)</code>.</li>
+    <li>Trap: <code>typeof NaN</code> is <code>"number"</code>. NaN is a special value <em>of</em> the number type.</li>
+    <li><strong>NaN is not equal to anything, not even itself.</strong> So <code>x === NaN</code> is always false. Use <code>Number.isNaN(x)</code> to check.</li>
+  </ul>
+
+  <pre><code>NaN === NaN            // false
+Number.isNaN(NaN)      // true
+isNaN("abc")           // true:  the old global isNaN turns "abc" into a number first (NaN)
+Number.isNaN("abc")    // false: "abc" is a string, not NaN</code></pre>
+
+  <div class="note">
+    <p><strong>Interview:</strong> "What is <code>typeof NaN</code>?" <code>"number"</code>. "How do you check for NaN?" <code>Number.isNaN(x)</code>. <code>x === NaN</code> never works, because NaN never equals itself.</p>
+  </div>
+
+  <h3>0.1 + 0.2 is not 0.3</h3>
+  <ul>
+    <li>Numbers are stored in <strong>binary</strong> (base 2). Fractions like 1/2 or 1/4 fit exactly, but <strong>0.1 can't be stored exactly</strong>, just like 1/3 can't be written exactly in decimal (0.333…). So a tiny error creeps in.</li>
+  </ul>
+
+  <pre><code>0.1 + 0.2            // 0.30000000000000004
+0.1 + 0.2 === 0.3    // false</code></pre>
+
+  <ul>
+    <li>This is <strong>not a JavaScript bug</strong>. Python, Java, C and most other languages store decimals the same way.</li>
+    <li>Fixes:
+      <ul>
+        <li>For money, work in <strong>whole numbers</strong> (paise, not rupees).</li>
+        <li>To compare, check that the numbers are <em>close enough</em>: <code>Math.abs(a - b) &lt; Number.EPSILON</code>.</li>
+        <li>For display, round with <code>(0.1 + 0.2).toFixed(2)</code>, which gives <code>"0.30"</code>.</li>
+      </ul>
+    </li>
+  </ul>
+
+  <div class="note">
+    <p><strong>Interview:</strong> "Why is <code>0.1 + 0.2 !== 0.3</code>?" 0.1 and 0.2 can't be stored exactly in binary, so the sum is off by a tiny amount. It happens in most languages, not just JavaScript.</p>
+  </div>
+
+  <h3>BigInt: whole numbers of any size</h3>
+  <ul>
+    <li>A separate primitive type for whole numbers bigger than the safe limit. Write it with an <code>n</code> at the end (<code>123n</code>) or use <code>BigInt("123")</code>.</li>
+    <li><strong>You can't mix BigInt and normal numbers in maths.</strong> <code>1n + 1</code> throws a TypeError. Convert one side first: <code>1n + BigInt(1)</code>.</li>
+    <li>Division drops the decimals: <code>7n / 2n</code> is <code>3n</code>.</li>
+    <li>Comparing across the two types works: <code>1 &lt; 2n</code> is true. <code>0 == 0n</code> is also true, but <code>0 === 0n</code> is false, because <code>===</code> also checks that the types match.</li>
+  </ul>
+
+  <h3>Dates</h3>
+  <ul>
+    <li>Covered in Chapter 11. For now, just know that <code>Date.now()</code> gives the current time as a <strong>timestamp</strong>: the number of milliseconds since 1 January 1970.</li>
+  </ul>
+
+
+  <h2><span class="num">3.3</span> Text</h2>
+
+  <ul>
+    <li>A <strong>string</strong> is a piece of text. It's <strong>immutable</strong> (see 3.8) and counted from 0: <code>s[0]</code> is the first character, and <code>s.length</code> is the length.</li>
+    <li>There's no separate "character" type. A single character is just a string of length 1.</li>
+    <li>You can use <code>'single'</code>, <code>"double"</code> or <code>`backtick`</code> quotes. Only backticks allow a string to span several lines and to contain <code>${…}</code> (see below).</li>
+    <li>Useful escape codes: <code>\n</code> for a new line, <code>\'</code> for a quote inside a quoted string, and <code>\\</code> for a backslash.</li>
+  </ul>
+
+  <h3>Common string methods</h3>
+  <pre><code>let s = "Hello, world";
+
+s.slice(0, 5)          // "Hello"  (the end position isn't included)
+s.slice(-5)            // "world"  (negative counts from the end)
+s.split(", ")          // ["Hello", "world"]
+s.indexOf("o")         // 4  (-1 if not found)
+s.includes("world")    // true
+s.startsWith("Hell")   // true
+s.replace("l", "L")    // "HeLlo, world": only the FIRST match
+s.toUpperCase()        // "HELLO, WORLD"
+"  hi  ".trim()        // "hi"
+"5".padStart(3, "0")   // "005"
+"ab".repeat(3)         // "ababab"</code></pre>
+
+  <ul>
+    <li>None of these change <code>s</code>. They all <strong>return a new string</strong>, because strings are immutable.</li>
+    <li><code>replace</code> only changes the first match. Use <code>replaceAll</code> to change every match.</li>
+    <li><code>substring</code> works like <code>slice</code>, but treats negative numbers as 0. Stick with <code>slice</code>.</li>
+    <li>Comparing strings with <code>&lt;</code> or <code>&gt;</code> goes character by character using character codes, and <strong>all capital letters come before all small letters</strong>. So <code>"Zebra" &lt; "apple"</code> is true.</li>
+  </ul>
+
+  <h3>Template literals (backtick strings)</h3>
+  <pre><code>let name = "Sourabh";
+`Hi ${name}, 2 + 3 = ${2 + 3}`</code></pre>
+  <div class="output">"Hi Sourabh, 2 + 3 = 5"</div>
+  <ul>
+    <li>Any expression can go inside <code>${ }</code>. Its result is turned into a string and dropped in. This is cleaner than joining strings with <code>+</code>.</li>
+    <li>They can span several lines without needing <code>\n</code>.</li>
+    <li><strong>Tagged templates</strong>: if you put a function name right before the backtick (<code>fn`text`</code>), that function gets the text pieces and the values and builds the result. Libraries use this, e.g. for safely building HTML or SQL. Details in Chapter 14.</li>
+  </ul>
+
+  <h3>Trap: <code>length</code> doesn't always count characters</h3>
+  <ul>
+    <li>JavaScript stores text in <strong>UTF-16</strong>, a format that keeps text in 16-bit pieces. Most characters take one piece, but <strong>emoji and some rare characters take two</strong>.</li>
+    <li><code>length</code> counts the pieces, not the characters you see.</li>
+  </ul>
+
+  <pre><code>"😀".length          // 2
+[..."😀"].length     // 1: spreading (...) splits by real characters
+for (let ch of "hi😀") console.log(ch);   // h, i, 😀 (for...of also goes by real characters)</code></pre>
+
+  <p>Pattern matching (regular expressions, <code>/pattern/</code>) is skipped here. It's covered properly in Chapter 11.</p>
+
+  <div class="note">
+    <p><strong>Interview:</strong> "Why is <code>"😀".length</code> 2?" Strings are stored as 16-bit pieces, and an emoji needs two. Use <code>[...str].length</code> to count real characters. "What's the difference between <code>slice</code> and <code>substring</code>?" Only <code>slice</code> accepts negative numbers.</p>
+  </div>
+
+
+  <h2><span class="num">3.4</span> Boolean Values</h2>
+
+  <ul>
+    <li>A boolean is either <code>true</code> or <code>false</code>. You usually get one from a comparison like <code>a === 4</code>.</li>
+  </ul>
+
+  <h3>Truthy and falsy</h3>
+  <ul>
+    <li>When JavaScript needs a true/false answer (in <code>if</code>, <code>while</code>, <code>&amp;&amp;</code>, <code>||</code> or <code>!</code>), it converts <strong>any</strong> value into a boolean.</li>
+    <li>These <strong>8 values are falsy</strong>, meaning they act like <code>false</code>: <code>false</code>, <code>0</code>, <code>-0</code>, <code>0n</code>, <code>NaN</code>, <code>""</code> (empty string), <code>null</code> and <code>undefined</code>.</li>
+    <li><strong>Everything else is truthy</strong>, meaning it acts like <code>true</code>. That includes some values that look "empty" or "false":</li>
+  </ul>
+
+  <pre><code>if ([])      // runs: an empty array is truthy
+if ({})      // runs: an empty object is truthy
+if ("0")     // runs: a non-empty string
+if ("false") // runs: a non-empty string
+if (" ")     // runs: a space is still a character</code></pre>
+
+  <h3>Trap: <code>if (x)</code> also skips 0 and ""</h3>
+  <p>A shortcut like <code>if (x)</code> skips <em>every</em> falsy value, not just null and undefined. That's a bug when 0 or "" is a real value in your program:</p>
+
+  <pre><code>let count = 0;
+if (count) { … }               // doesn't run, even though 0 is a real count
+if (count !== undefined) { … } // runs: checks only what you meant</code></pre>
+
+  <ul>
+    <li><code>&amp;&amp;</code> (AND), <code>||</code> (OR) and <code>!</code> (NOT) work with any values, not just booleans. <code>!!x</code> is a quick way to turn any value into <code>true</code> or <code>false</code>. Full details in Chapter 4.</li>
+  </ul>
+
+  <div class="note">
+    <p><strong>Interview:</strong> "What are the falsy values?" <code>false</code>, <code>0</code>, <code>-0</code>, <code>0n</code>, <code>NaN</code>, <code>""</code>, <code>null</code> and <code>undefined</code>. "Is <code>[]</code> truthy?" Yes. Every object is truthy, even an empty one.</p>
+  </div>
+
+
+  <h2><span class="num">3.5</span> null and undefined</h2>
+
+  <ul>
+    <li>Both mean "no value", but they're used differently:
+      <ul>
+        <li><strong><code>null</code></strong> means "empty on purpose". <em>You</em> set it, to say "there's nothing here".</li>
+        <li><strong><code>undefined</code></strong> means "nothing has been set yet". <em>JavaScript</em> gives it to you automatically.</li>
+      </ul>
+    </li>
+    <li>You get <code>undefined</code> when:
+      <ul>
+        <li>a variable was declared without a value: <code>let x;</code></li>
+        <li>you read an object property that doesn't exist: <code>user.phone</code></li>
+        <li>a function doesn't <code>return</code> anything</li>
+        <li>you call a function without passing one of its parameters</li>
+      </ul>
+    </li>
+    <li><strong><code>typeof null</code> is <code>"object"</code>.</strong> This is a bug from the very first version of JavaScript. It was never fixed because fixing it would break old websites. <code>typeof undefined</code> is <code>"undefined"</code>.</li>
+    <li><code>null == undefined</code> is <strong>true</strong>, but <code>null === undefined</code> is <strong>false</strong>.</li>
+    <li>Both are falsy, and both throw a TypeError if you use a dot on them (see 3.1).</li>
+    <li>When you want to say "no value" yourself, use <code>null</code>. Leave <code>undefined</code> for JavaScript.</li>
+  </ul>
+
+  <div class="note">
+    <p><strong>Interview:</strong> "What's the difference between null and undefined?" <code>undefined</code> means a value was never set, and JavaScript gives it automatically. <code>null</code> is set by you, on purpose, to mean "empty". Expect the follow-up "what is <code>typeof null</code>?" It's <code>"object"</code>, an old bug.</p>
+  </div>
+
+
+  <h2><span class="num">3.6</span> Symbols</h2>
+
+  <ul>
+    <li>A <strong>Symbol</strong> is a primitive used as a <strong>property name that can never clash</strong> with any other property name.</li>
+    <li>Every call to <code>Symbol()</code> gives a brand-new, unique value, even with the same description:</li>
+  </ul>
+
+  <pre><code>let id = Symbol("id");
+Symbol("id") === Symbol("id")   // false: every symbol is unique
+
+let user = { name: "Sourabh" };
+user[id] = 101;                  // a property no other code can overwrite by accident</code></pre>
+
+  <ul>
+    <li>Why they exist: JavaScript uses built-in symbols like <code>Symbol.iterator</code> to add new features to objects without breaking old code that might already use a normal property name like <code>"iterator"</code> (Chapter 12).</li>
+    <li><code>Symbol.for("key")</code> is the exception. It returns the <strong>same</strong> symbol every time for the same key, so different parts of a program can share one symbol.</li>
+    <li>Symbols are rare in everyday code. Just know what they are and why they exist.</li>
+  </ul>
+
+
+  <h2><span class="num">3.7</span> The Global Object</h2>
+
+  <ul>
+    <li>The <strong>global object</strong> is a built-in object whose properties are all the things you can use anywhere without importing them: <code>undefined</code>, <code>NaN</code>, <code>Infinity</code>, <code>parseInt()</code>, <code>Math</code>, <code>JSON</code>, <code>Date</code> and so on.</li>
+    <li>Its name depends on where your code runs: <code>window</code> in browsers and <code>global</code> in Node. <strong><code>globalThis</code> works everywhere</strong>, so prefer it.</li>
+    <li>A top-level <code>var</code> becomes a property of this object, but <code>let</code> and <code>const</code> don't (see 3.10).</li>
+  </ul>
+
+
+  <h2><span class="num">3.8</span> Immutable Primitive Values and Mutable Object References</h2>
+
+  <p>This section is about how primitives and objects behave differently. There are three differences:</p>
+
+  <ul>
+    <li><strong>Primitives</strong> can't be changed, are compared by value, and get copied when you assign them.</li>
+    <li><strong>Objects</strong> can be changed, are compared by reference, and get shared (not copied) when you assign them.</li>
+  </ul>
+
+  <p>The key idea behind all three: an object variable doesn't hold the object itself. It holds a <strong>reference</strong>, which is like an address pointing to where the object lives in memory.</p>
+
+  <h3>1. Changing: objects are mutable, primitives are immutable</h3>
+  <ul>
+    <li><strong>Mutable</strong> means a value can be changed after it's created. <strong>Immutable</strong> means it can't.</li>
+    <li><strong>Objects can be changed in place.</strong> You can edit, add or remove what's inside, and it's still the same object.</li>
+    <li><strong>Primitives can never be changed.</strong> Anything that looks like a change actually creates a new value. String methods never touch the original string; they <strong>return a new one</strong>, which you must store if you want to keep it.</li>
+  </ul>
+
+  <pre><code>let user = { name: "Sourabh" };
+user.name = "Rahul";    // same object, new contents
+
+let s = "hello";
+s[0] = "H";             // silently does nothing
+s.toUpperCase();        // returns "HELLO", but s is unchanged
+s = s.toUpperCase();    // store the result: s now points to "HELLO"</code></pre>
+
+  <ul>
+    <li><strong>Reassigning is not mutating.</strong> Reassigning means pointing a variable at a different value (<code>x = 10</code>), and any <code>let</code> variable can do it. Mutating means changing the inside of a value, which only objects allow.</li>
+    <li>So <strong><code>const</code> doesn't freeze an object.</strong> It only stops reassignment. The contents can still change:</li>
+  </ul>
+
+  <pre><code>const user = { name: "Sourabh" };
+user.name = "Rahul";    // ✅ allowed: changes the object
+user = {};              // ❌ TypeError: can't reassign a const</code></pre>
+
+  <h3>2. Comparing: by value vs. by reference</h3>
+  <ul>
+    <li><strong>Primitives</strong> are equal if their values are the same: <code>"abc" === "abc"</code> is true.</li>
+    <li><strong>Objects</strong>: <code>===</code> checks whether both point to the <strong>same object</strong>, not whether the contents match.</li>
+  </ul>
+
+  <pre><code>{ x: 1 } === { x: 1 }   // false: two different objects that just look the same
+[] === []               // false: two different arrays
+
+let a = [1, 2];
+let b = a;
+a === b                 // true: both point to the same array</code></pre>
+
+  <ul>
+    <li>To check whether two objects or arrays have the <strong>same contents</strong>, you have to compare them item by item yourself, e.g. with a loop.</li>
+  </ul>
+
+  <h3>3. Copying: objects are shared, not copied</h3>
+  <p><code>let b = a</code> copies the <em>reference</em>, so both names point to the same object. A change through one shows up in the other:</p>
+
+  <pre><code>let a = { n: 1 };
+let b = a;              // b points to the SAME object, not a copy
+b.n = 2;
+console.log(a.n);</code></pre>
+  <div class="output">2</div>
+
+  <p>With primitives this can't happen. <code>let b = a</code> gives <code>b</code> its own value, so changing <code>b</code> never affects <code>a</code>.</p>
+
+  <ul>
+    <li>To make a real copy, use <code>[...arr]</code> or <code>Array.from(arr)</code> for arrays, and <code>{ ...obj }</code> for objects.</li>
+    <li>These are <strong>shallow copies</strong>: only the top level is copied, and objects nested inside are still shared. For a full <strong>deep copy</strong>, use <code>structuredClone(obj)</code>.</li>
+  </ul>
+
+  <pre><code>let user = { name: "Sourabh", address: { city: "Delhi" } };
+let copy = { ...user };
+copy.name = "Rahul";            // doesn't affect user
+copy.address.city = "Mumbai";   // DOES affect user: address is still shared</code></pre>
+
+  <div class="note">
+    <p><strong>Interview:</strong> "Can you change a <code>const</code> object?" Yes, its properties can change. <code>const</code> only stops reassignment. Use <code>Object.freeze(obj)</code> to make it read-only.</p>
+    <p>"Are strings mutable?" No. Every string method returns a new string.</p>
+    <p>"Why is <code>[] === []</code> false?" Objects are compared by reference, and these are two separate arrays.</p>
+    <p>"Shallow vs. deep copy?" A shallow copy (<code>{...obj}</code>) copies only the top level. A deep copy (<code>structuredClone</code>) copies nested objects too.</p>
+  </div>
+
+
+  <h2><span class="num">3.9</span> Type Conversions</h2>
+
+  <ul>
+    <li>When an operation needs a different type, JavaScript <strong>converts the value automatically</strong>. This is called <strong>type coercion</strong>.</li>
+    <li>The rule for <code>+</code>: if <strong>either side is a string</strong>, <code>+</code> joins them as text. All the other maths operators (<code>-</code>, <code>*</code>, <code>/</code>, <code>%</code>) always convert to numbers.</li>
+  </ul>
+
+  <pre><code>"5" + 1          // "51": + with a string joins text
+"5" - 1          // 4:    - always does maths
+"7" * "4"        // 28
+1 - "x"          // NaN:  "x" can't become a number
+10 + " apples"   // "10 apples"</code></pre>
+
+  <h3>Surprising conversions to a number</h3>
+  <pre><code>Number("")          // 0
+Number("  12  ")    // 12:  spaces at the ends are ignored
+Number("12px")      // NaN: anything extra makes it NaN
+Number(true)        // 1    (false → 0)
+Number(null)        // 0
+Number(undefined)   // NaN</code></pre>
+
+  <h3>== vs ===</h3>
+  <ul>
+    <li><strong><code>===</code> (strict equality)</strong> never converts. If the types are different, the answer is <code>false</code>. <strong>Use this almost always.</strong></li>
+    <li><strong><code>==</code> (loose equality)</strong> converts the values first, then compares. That gives confusing results:</li>
+  </ul>
+
+  <pre><code>null == undefined   // true
+"0" == 0            // true:  "0" becomes 0
+0 == false          // true:  false becomes 0
+"0" == false        // true:  both become 0
+"" == 0             // true
+
+undefined == false  // false! being falsy doesn't mean == false
+null == 0           // false</code></pre>
+
+  <ul>
+    <li>Being falsy and being <code>== false</code> are different things. <code>if</code> turns a value into a boolean, but <code>==</code> never does. That's why <code>undefined</code> is falsy, yet <code>undefined == false</code> is false.</li>
+    <li>The one common use of <code>==</code>: <code>x == null</code> is true for both <code>null</code> and <code>undefined</code>, so it checks both in one go.</li>
+  </ul>
+
+  <div class="note">
+    <p><strong>Interview:</strong> "<code>==</code> vs <code>===</code>?" <code>===</code> checks value <em>and</em> type with no conversion. <code>==</code> converts the types first, so <code>"0" == 0</code> is true. "What are <code>"5" + 1</code> and <code>"5" - 1</code>?" <code>"51"</code> and <code>4</code>.</p>
+  </div>
+
+  <h3>Converting on purpose</h3>
+  <ul>
+    <li>Use <code>Number(x)</code>, <code>String(x)</code> and <code>Boolean(x)</code>. Short forms you'll see in code: <code>+x</code> (to number), <code>x + ""</code> (to string) and <code>!!x</code> (to boolean).</li>
+    <li>Never use <code>new Number()</code>, <code>new String()</code> or <code>new Boolean()</code>. They create wrapper <strong>objects</strong>, not primitives: <code>typeof new Number(5)</code> is <code>"object"</code>, and <code>new Boolean(false)</code> is truthy because it's an object.</li>
+    <li><strong><code>Number()</code> vs <code>parseInt()</code>/<code>parseFloat()</code>:</strong> <code>Number()</code> needs the <em>whole</em> string to be a number. <code>parseInt</code> and <code>parseFloat</code> read digits from the start and stop at the first character that doesn't fit.</li>
+  </ul>
+
+  <pre><code>Number("42px")          // NaN
+parseInt("42px")        // 42
+parseFloat("3.14 kg")   // 3.14
+parseInt("3.99")        // 3:   whole numbers only, it just cuts the rest
+parseInt("px42")        // NaN: it has to start with a number
+parseInt("ff", 16)      // 255: the second argument is the base</code></pre>
+
+  <ul>
+    <li><code>n.toFixed(2)</code> rounds to 2 decimal places, but <strong>returns a string</strong>, not a number: <code>(3.456).toFixed(2)</code> is <code>"3.46"</code>.</li>
+  </ul>
+
+  <h3>Objects to primitives (simplified)</h3>
+  <ul>
+    <li>Every object is <strong>truthy</strong>. No conversion is needed for that.</li>
+    <li>To turn an object into a string or number, JavaScript calls the object's own <code>valueOf()</code> or <code>toString()</code> method. For plain objects and arrays, it ends up using <code>toString()</code>:
+      <ul>
+        <li>A plain object becomes <code>"[object Object]"</code>.</li>
+        <li>An array becomes its items joined by commas: <code>[1, 2]</code> becomes <code>"1,2"</code>, and <code>[]</code> becomes <code>""</code>.</li>
+      </ul>
+    </li>
+    <li>That explains the weird puzzles:</li>
+  </ul>
+
+  <pre><code>[] + []          // "":  both become "" and get joined
+[] + {}          // "[object Object]"
+Number([])       // 0:   [] → "" → 0
+`${{ a: 1 }}`    // "[object Object]": why printing an object in a string looks useless</code></pre>
+
+  <ul>
+    <li>Dates are the exception: <code>date1 &lt; date2</code> works, because dates turn into their timestamp numbers for comparisons.</li>
+  </ul>
+
+
+  <h2><span class="num">3.10</span> Variable Declaration and Assignment</h2>
+
+  <h3>let and const</h3>
+  <ul>
+    <li><code>let</code> creates a variable you can reassign later. If you don't give it a value, it starts as <code>undefined</code>.</li>
+    <li><code>const</code> creates a constant. You <strong>must</strong> give it a value straight away, and reassigning it throws a TypeError. (A <code>const</code> object's contents can still change; see 3.8.)</li>
+    <li>A common habit: use <code>const</code> by default, and switch to <code>let</code> only when the value really needs to change.</li>
+    <li><code>const</code> works in <code>for...of</code> loops, e.g. <code>for (const item of list)</code>, because each loop round gets a fresh constant. It doesn't work in a normal <code>for (let i = 0; …; i++)</code> loop, because <code>i++</code> reassigns.</li>
+    <li>Variables have <strong>no fixed type</strong>. <code>let x = 10; x = "ten";</code> is allowed. (TypeScript adds types on top of JavaScript.)</li>
+  </ul>
+
+  <h3>Block scope</h3>
+  <ul>
+    <li><strong>Scope</strong> is the part of the code where a variable exists.</li>
+    <li><code>let</code> and <code>const</code> are <strong>block scoped</strong>. They exist only inside the <code>{ }</code> they were declared in: an <code>if</code>, a loop, a function and so on.</li>
+  </ul>
+
+  <pre><code>if (true) {
+  let msg = "hi";
+}
+console.log(msg);</code></pre>
+  <div class="output">ReferenceError: msg is not defined</div>
+
+  <ul>
+    <li>Declaring the same name twice with <code>let</code> or <code>const</code> in the same scope is a SyntaxError. An inner block <em>can</em> declare a variable with the same name as an outer one. This is called <strong>shadowing</strong>. It's allowed, but confusing.</li>
+    <li>A variable declared outside every block is <strong>global</strong> and can be used everywhere.</li>
+  </ul>
+
+  <h3>var: the old way, and why let replaced it</h3>
+  <p>Before ES6 (2015), <code>var</code> was the only way to declare a variable. You'll still see it in old code, and interviewers love asking how it differs from <code>let</code>:</p>
+  <ol>
+    <li><strong>Function scope, not block scope.</strong> A <code>var</code> inside an <code>if</code> or a loop leaks out of that block. It's only contained by a function.</li>
+    <li><strong>Hoisting.</strong> JavaScript quietly moves the <code>var</code> declaration to the top of the function. So you can use the variable <em>before</em> its line and get <code>undefined</code> instead of an error, which hides bugs.</li>
+    <li><strong>Can be declared again.</strong> <code>var x = 1; var x = 2;</code> is allowed.</li>
+    <li><strong>A top-level <code>var</code> becomes a property of the global object</strong> (<code>window.x</code>). This doesn't happen with <code>let</code> and <code>const</code>.</li>
+  </ol>
+
+  <pre><code>console.log(a);   // undefined: var is hoisted, no error
+var a = 5;
+
+console.log(b);   // ReferenceError: can't use it before this line
+let b = 5;</code></pre>
+
+  <ul>
+    <li><code>let</code> and <code>const</code> are technically hoisted too, but you can't touch them until their line runs. The stretch of code before that line is called the <strong>Temporal Dead Zone (TDZ)</strong>. Using the variable there throws a ReferenceError.</li>
+    <li>If you assign to a name you never declared (<code>x = 5</code> without <code>let</code>), JavaScript quietly creates a global variable. In <strong>strict mode</strong> (<code>"use strict"</code>, a safer mode of JavaScript), it throws an error instead.</li>
+  </ul>
+
+  <h3>Classic trap: var in a loop</h3>
+  <pre><code>for (var i = 0; i &lt; 3; i++) {
+  setTimeout(() =&gt; console.log(i));   // runs later, after the loop ends
+}</code></pre>
+  <div class="output">3 3 3</div>
+  <p>With <code>var</code>, there's <strong>one shared <code>i</code></strong> for the whole loop. By the time the functions run, it's already 3. Change it to <code>let i</code> and each loop round gets <strong>its own <code>i</code></strong>, so it prints <code>0 1 2</code>.</p>
+
+  <div class="note">
+    <p><strong>Interview:</strong> "<code>var</code> vs <code>let</code> vs <code>const</code>?" <code>var</code> is function scoped, can be redeclared, and is hoisted as <code>undefined</code>. <code>let</code> and <code>const</code> are block scoped and can't be used before their line (the TDZ). <code>const</code> also can't be reassigned. "Are let and const hoisted?" Yes, but the TDZ stops you from using them early.</p>
+  </div>
+
+  <h3>Destructuring</h3>
+  <p>Destructuring is a short way to <strong>unpack values from an array or object into separate variables</strong>.</p>
+
+  <pre><code>// Arrays: by position
+let [a, b] = [1, 2];              // a = 1, b = 2
+[a, b] = [b, a];                  // swap: a = 2, b = 1
+let [x, , z] = [1, 2, 3];         // an empty comma skips: x = 1, z = 3
+let [first, ...rest] = [1, 2, 3]; // first = 1, rest = [2, 3]
+
+// Objects: by property name (order doesn't matter)
+let user = { name: "Sourabh", age: 25 };
+let { name, age } = user;         // name = "Sourabh", age = 25
+let { name: userName } = user;    // rename: userName = "Sourabh"
+let { city = "Delhi" } = user;    // default value if the property is missing</code></pre>
+
+  <ul>
+    <li>Array destructuring goes by <strong>position</strong>. Object destructuring goes by <strong>property name</strong>.</li>
+    <li>If a value is missing, the variable gets <code>undefined</code>, or the default if you gave one.</li>
+    <li>It's handy in loops: <code>for (const [key, value] of Object.entries(user))</code> gives each property's name and value.</li>
+    <li>Nested destructuring is possible, but quickly gets hard to read. Keep it simple.</li>
+  </ul>
+
+  <div class="note">
+    <p><strong>Interview:</strong> "How do you swap two variables without a temporary variable?" <code>[a, b] = [b, a];</code></p>
+  </div>
+
+
+  <h2><span class="num">3.11</span> Summary</h2>
+  <p>The book's summary is just a recap. Here's a quick revision list of what to remember for interviews instead:</p>
+  <ul>
+    <li><strong>7 primitives</strong>: number, string, boolean, null, undefined, symbol, bigint. Everything else is an object.</li>
+    <li>Primitives get methods through <strong>autoboxing</strong>. A dot on <code>null</code> or <code>undefined</code> throws a <strong>TypeError</strong>.</li>
+    <li><code>typeof NaN</code> is <code>"number"</code>. <code>NaN !== NaN</code>, so check with <code>Number.isNaN</code>.</li>
+    <li><code>0.1 + 0.2 !== 0.3</code>, because of how binary stores decimals.</li>
+    <li>Safe whole numbers stop at 2<sup>53</sup> − 1. Use BigInt beyond that, and don't mix BigInt with normal numbers.</li>
+    <li><code>"😀".length</code> is 2. String methods return new strings.</li>
+    <li>The <strong>8 falsy values</strong>: <code>false</code>, <code>0</code>, <code>-0</code>, <code>0n</code>, <code>NaN</code>, <code>""</code>, <code>null</code>, <code>undefined</code>. <code>[]</code> and <code>{}</code> are truthy.</li>
+    <li><code>undefined</code> means never set; <code>null</code> means empty on purpose. <code>typeof null</code> is <code>"object"</code>.</li>
+    <li>Objects are mutable, compared by reference and shared on assignment. <code>[] === []</code> is false. <code>const</code> objects can still change.</li>
+    <li>Shallow copy: <code>{...obj}</code>. Deep copy: <code>structuredClone(obj)</code>.</li>
+    <li><code>"5" + 1</code> is <code>"51"</code> and <code>"5" - 1</code> is <code>4</code>. Use <code>===</code>, not <code>==</code>.</li>
+    <li><code>var</code> is function scoped and hoisted as <code>undefined</code>. <code>let</code>/<code>const</code> are block scoped and have a TDZ.</li>
+    <li>The <code>var</code> loop trap prints <code>3 3 3</code>; with <code>let</code> it prints <code>0 1 2</code>.</li>
+  </ul>
+
+
+</main>
+<script src="../sidebar.js"></script>
+</body>
+</html>
